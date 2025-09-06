@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>DoubleDamage</AssemblyName>
+    <RootNamespace>Silksong.DoubleDamage</RootNamespace>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BepInEx + Harmony -->
+    <Reference Include="BepInEx">
+      <HintPath>..\.local\share\Steam\steamapps\common\Hollow Knight Silksong\\BepInEx\core\BepInEx.dll</HintPath>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>..\.local\share\Steam\steamapps\common\Hollow Knight Silksong\\BepInEx\core\0Harmony.dll</HintPath>
+    </Reference>
+
+    <!-- Game assemblies for types like HealthManager/HitInstance -->
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\.local\share\Steam\steamapps\common\Hollow Knight Silksong\\Hollow Knight Silksong_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\.local\share\Steam\steamapps\common\Hollow Knight Silksong\\Hollow Knight Silksong_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\.local\share\Steam\steamapps\common\Hollow Knight Silksong\\Hollow Knight Silksong_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
