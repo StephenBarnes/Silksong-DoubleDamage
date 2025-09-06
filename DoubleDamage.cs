@@ -1,44 +1,45 @@
 using BepInEx;
-using BepInEx.Logging;
 using BepInEx.Configuration;
+using BepInEx.Logging;
 using HarmonyLib;
 
 namespace Silksong.DoubleDamage
 {
-    private ConfigEntry<float> _mult;
-
     [BepInPlugin("stebars.silksong.double-damage", "Double Damage", "1.0.0")]
     public sealed class DoubleDamagePlugin : BaseUnityPlugin
     {
         internal static ManualLogSource LogSrc;
+        internal static ConfigEntry<float> DamageMult;
 
         private void Awake()
         {
-            _mult = Config.Bind("General", "PlayerDamageMultiplier", 2f, "Multiplier for all hero damage");
             LogSrc = Logger;
+            DamageMult = Config.Bind("General", "PlayerDamageMultiplier", 2f, "Multiplier for all hero damage");
+
             var harmony = new Harmony("stebars.silksong.double-damage");
             harmony.PatchAll();
-            LogSrc.LogInfo("Double Damage loaded: all hero damage will be doubled.");
+
+            LogSrc.LogInfo($"Double Damage loaded. Multiplier = {DamageMult.Value}");
         }
     }
 
     // ---- Harmony patch ----
-    // This targets the *private* method HealthManager.TakeDamage(HitInstance)
+    // Target: private void HealthManager.TakeDamage(HitInstance hitInstance)
     [HarmonyPatch(typeof(HealthManager), "TakeDamage")]
     internal static class Patch_HealthManager_TakeDamage
     {
-        // Prefix runs before the original. We modify the HitInstance in-place.
-        static void Prefix(ref HitInstance hitInstance)
+        // Runs before the original, lets us tweak the HitInstance that's about to be applied.
+        private static void Prefix(ref HitInstance hitInstance)
         {
-            // Only touch outgoing player damage.
+            // Only touch damage originating from the hero/player.
             if (!hitInstance.IsHeroDamage)
                 return;
 
-            // If mods or the game have already set a multiplier, multiply on top.
-            hitInstance.Multiplier *= DoubleDamagePlugin.Instance._mult.Value;
+            // Multiply on top of whatever other mods/game applied.
+            hitInstance.Multiplier *= DoubleDamagePlugin.DamageMult.Value;
 
-            // Optional: comment the next line out if you don’t want log spam.
-            DoubleDamagePlugin.LogSrc?.LogDebug($"Doubled hero damage. New Multiplier={hitInstance.Multiplier}");
+            // Optional debug line (comment out if noisy)
+            DoubleDamagePlugin.LogSrc?.LogDebug($"Applied hero damage mult: {DoubleDamagePlugin.DamageMult.Value} -> final Multiplier={hitInstance.Multiplier}");
         }
     }
 }
