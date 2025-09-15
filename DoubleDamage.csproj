@@ -10,6 +10,29 @@
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
 
+  <!-- Candidate Steam game paths -->
+  <PropertyGroup>
+    <Path1>$(HOME)\.local\share\Steam\steamapps\common\Hollow Knight Silksong</Path1>
+    <Path2>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight Silksong</Path2>
+    <Path3>D:\SteamLibrary\steamapps\common\Hollow Knight Silksong</Path3>
+  </PropertyGroup>
+
+  <!-- Select the first existing Steam game path -->
+  <PropertyGroup>
+    <GamePath Condition="Exists('$(Path1)')">$(Path1)</GamePath>
+    <GamePath Condition="!Exists('$(Path1)') and Exists('$(Path2)')">$(Path2)</GamePath>
+    <GamePath Condition="!Exists('$(Path1)') and !Exists('$(Path2)') and Exists('$(Path3)')">$(Path3)</GamePath>
+  </PropertyGroup>
+
+  <Target Name="WarnIfBadGamePath" AfterTargets="PrepareForBuild">
+    <Warning Condition="'$(GamePath)' == ''"
+        Text="No Steam game path was detected. To specify your game path, run like this: dotnet build -c release --property 'GamePath=path-to-your-game'"/>
+    <Warning Condition="'$(GamePath)' != '' and !Exists('$(GamePath)\Hollow Knight Silksong_Data') "
+        Text="Game path '$(GamePath)' does not contain the Hollow Knight Silksong game."/>
+    <Warning Condition="'$(GamePath)' != '' and !Exists('$(GamePath)\BepInEx') "
+        Text="Game path '$(GamePath)' does not have BepInEx installed."/>
+  </Target>
+
   <!-- Let dotnet build net48 on non-Windows by bringing reference assemblies via NuGet -->
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="All" />
@@ -18,21 +41,21 @@
   <ItemGroup>
     <!-- BepInEx + Harmony -->
     <Reference Include="BepInEx">
-      <HintPath>$(HOME)\.local\share\Steam\steamapps\common\Hollow Knight Silksong\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath>$(GamePath)\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>$(HOME)\.local\share\Steam\steamapps\common\Hollow Knight Silksong\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>$(GamePath)\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
 
     <!-- Game assemblies (adjust the folder if needed) -->
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(HOME)\.local\share\Steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(GamePath)\Hollow Knight Silksong_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(HOME)\.local\share\Steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(GamePath)\Hollow Knight Silksong_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(HOME)\.local\share\Steam\steamapps\common\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(GamePath)\Hollow Knight Silksong_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
